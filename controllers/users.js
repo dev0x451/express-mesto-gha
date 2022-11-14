@@ -6,7 +6,7 @@ function getUsers(req, res) {
     .catch(() => res.status(500).send({ message: 'Произошла ошибка поиска' }));
 }
 
-function getUsersById(req, res) {
+function getUserById(req, res) {
   const { userId } = req.params;
   User.findById(userId)
     .then((user) => res.send(user))
@@ -22,4 +22,28 @@ function postUser(req, res) {
     .catch(() => res.status(500).send({ message: 'Произошла ошибка создания пользователя' }));
 }
 
-module.exports = { postUser, getUsers, getUsersById };
+function updateUser(req, res) {
+  const { name, about } = req.body;
+  User.findByIdAndUpdate(req.user._id, { name, about }, {
+    new: true,
+    runValidators: true,
+    upsert: false,
+  })
+    .then((user) => res.send(user))
+    .catch(() => res.status(500).send({ message: 'Произошла ошибка обновления пользователя' }));
+}
+
+function updateAvatar(req, res) {
+  const { avatar } = req.body;
+  User.findByIdAndUpdate(req.user._id, { avatar }, {
+    new: true,
+    runValidators: true,
+    upsert: false,
+  })
+    .then((user) => res.send(user))
+    .catch(() => res.status(500).send({ message: 'Произошла ошибка обновления аватара' }));
+}
+
+module.exports = {
+  postUser, getUsers, getUserById, updateUser, updateAvatar,
+};

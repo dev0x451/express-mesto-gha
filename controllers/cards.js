@@ -20,4 +20,18 @@ function deleteCard(req, res) {
     .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
 }
 
-module.exports = { getCards, createCard, deleteCard };
+function setLike(req, res) {
+  Card.findByIdAndUpdate(req.params.cardId, { $addToSet: { likes: req.user._id } }, { new: true })
+    .then((card) => res.send(card))
+    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+}
+
+function removeLike(req, res) {
+  Card.findByIdAndUpdate(req.params.cardId, { $pull: { likes: req.user._id } }, { new: true })
+    .then((card) => res.send(card))
+    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+}
+
+module.exports = {
+  getCards, createCard, deleteCard, setLike, removeLike,
+};
