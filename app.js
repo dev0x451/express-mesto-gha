@@ -19,6 +19,9 @@ app.use((req, res, next) => {
 app.use(bodyParser.json());
 app.use('/', userRoutes);
 app.use('/', cardRoutes);
+app.use('*', (req, res) => {
+  res.status(404).send({ message: 'Неверный URL' });
+});
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
