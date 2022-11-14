@@ -1,6 +1,5 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const bodyParser = require('body-parser');
 const userRoutes = require('./routes/users');
 const cardRoutes = require('./routes/cards');
 
@@ -16,9 +15,9 @@ app.use((req, res, next) => {
 
   next();
 });
-app.use(bodyParser.json());
-app.use('/', userRoutes);
-app.use('/', cardRoutes);
+app.use(express.json());
+app.use('/user', userRoutes);
+app.use('/cards', cardRoutes);
 app.use('*', (req, res) => {
   res.status(404).send({ message: 'Неверный URL' });
 });

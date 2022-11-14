@@ -1,9 +1,17 @@
 const Card = require('../models/card');
+const {
+  GENERAL_ERROR,
+  GENERAL_ERROR_MESSAGE,
+  RESOURCE_NOT_FOUND,
+  BAD_REQUEST,
+  BAD_REQUEST_MESSAGE,
+  CARD_NOT_FOUND_MESSAGE,
+} = require('../util/constants');
 
 function getCards(req, res) {
   Card.find({})
     .then((cards) => res.send(cards))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch(() => res.status(GENERAL_ERROR).send({ message: GENERAL_ERROR_MESSAGE }));
 }
 
 function createCard(req, res) {
@@ -12,8 +20,8 @@ function createCard(req, res) {
   Card.create({ name, link, owner: req.user._id })
     .then((card) => res.send({ data: card }))
     .catch((err) => {
-      if (err.name === 'ValidationError') res.status(400).send({ message: 'Переданы некорректные данные при создании карточки' });
-      else res.status(500).send({ message: 'Произошла ошибка' });
+      if (err.name === 'ValidationError') res.status(BAD_REQUEST).send({ message: BAD_REQUEST_MESSAGE });
+      else res.status(GENERAL_ERROR).send({ message: GENERAL_ERROR_MESSAGE });
     });
 }
 
@@ -21,15 +29,18 @@ function deleteCard(req, res) {
   Card.findByIdAndRemove(req.params.cardId)
     .orFail(() => {
       const error = new Error();
-      error.name = `Карточка с ID ${req.params.cardId} не найдена`;
-      error.statusCode = 404;
+      error.name = 'ResourceNotFound';
+      error.message = CARD_NOT_FOUND_MESSAGE;
+      error.statusCode = RESOURCE_NOT_FOUND;
       throw error;
     })
     .then((card) => res.send({ data: card }))
     .catch((err) => {
-      if (err.name === 'CastError') res.status(400).send({ message: 'Переданы некорректные данные при удалении карточки' });
-      else if (err.statusCode === 404) res.status(404).send({ message: err.name });
-      else res.status(500).send({ message: 'Произошла ошибка' });
+      if (err.name === 'CastError') res.status(BAD_REQUEST).send({ message: BAD_REQUEST_MESSAGE });
+      else if (err.statusCode === RESOURCE_NOT_FOUND) {
+        res.status(RESOURCE_NOT_FOUND)
+          .send({ message: err.name });
+      } else res.status(GENERAL_ERROR).send({ message: GENERAL_ERROR_MESSAGE });
     });
 }
 
@@ -37,15 +48,17 @@ function setLike(req, res) {
   Card.findByIdAndUpdate(req.params.cardId, { $addToSet: { likes: req.user._id } }, { new: true })
     .orFail(() => {
       const error = new Error();
-      error.name = 'Нет карточки по заданному id';
-      error.statusCode = 404;
+      error.name = 'ResourceNotFound';
+      error.message = CARD_NOT_FOUND_MESSAGE;
+      error.statusCode = RESOURCE_NOT_FOUND;
       throw error;
     })
     .then((card) => res.send({ data: card }))
     .catch((err) => {
-      if (err.name === 'CastError') res.status(400).send({ message: 'Переданы некорректные данные при постановке лайка' });
-      else if (err.statusCode === 404) res.status(404).send({ message: err.name });
-      else res.status(500).send({ message: 'Произошла ошибка' });
+      if (err.name === 'CastError') res.status(BAD_REQUEST).send({ message: BAD_REQUEST_MESSAGE });
+      else if (err.statusCode === RESOURCE_NOT_FOUND) {
+        res.status(RESOURCE_NOT_FOUND).send({ message: err.message });
+      } else res.status(GENERAL_ERROR).send({ message: GENERAL_ERROR_MESSAGE });
     });
 }
 
@@ -53,15 +66,17 @@ function removeLike(req, res) {
   Card.findByIdAndUpdate(req.params.cardId, { $pull: { likes: req.user._id } }, { new: true })
     .orFail(() => {
       const error = new Error();
-      error.name = 'Нет карточки по заданному id';
-      error.statusCode = 404;
+      error.name = 'ResourceNotFound';
+      error.message = CARD_NOT_FOUND_MESSAGE;
+      error.statusCode = RESOURCE_NOT_FOUND;
       throw error;
     })
     .then((card) => res.send({ data: card }))
     .catch((err) => {
-      if (err.name === 'CastError') res.status(400).send({ message: 'Переданы некорректные данные при снятии лайка' });
-      else if (err.statusCode === 404) res.status(404).send({ message: err.name });
-      else res.status(500).send({ message: 'Произошла ошибка' });
+      if (err.name === 'CastError') res.status(BAD_REQUEST).send({ message: BAD_REQUEST_MESSAGE });
+      else if (err.statusCode === RESOURCE_NOT_FOUND) {
+        res.status(RESOURCE_NOT_FOUND).send({ message: err.message });
+      } else res.status(GENERAL_ERROR).send({ message: GENERAL_ERROR_MESSAGE });
     });
 }
 

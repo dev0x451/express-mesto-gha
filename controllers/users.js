@@ -1,9 +1,18 @@
 const User = require('../models/user');
+const {
+  GENERAL_ERROR,
+  GENERAL_ERROR_MESSAGE,
+  RESOURCE_NOT_FOUND,
+  OK_CREATED,
+  BAD_REQUEST,
+  BAD_REQUEST_MESSAGE,
+  USER_NOT_FOUND_MESSAGE,
+} = require('../util/constants');
 
 function getUsers(req, res) {
   User.find({})
     .then((users) => res.send(users))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch(() => res.status(GENERAL_ERROR).send({ message: GENERAL_ERROR_MESSAGE }));
 }
 
 function getUserById(req, res) {
@@ -11,15 +20,17 @@ function getUserById(req, res) {
   User.findById(userId)
     .orFail(() => {
       const error = new Error();
-      error.name = `Пользователь по ID ${userId} не найден.`;
-      error.statusCode = 404;
+      error.name = 'ResourceNotFound';
+      error.message = USER_NOT_FOUND_MESSAGE;
+      error.statusCode = RESOURCE_NOT_FOUND;
       throw error;
     })
     .then((user) => res.send(user))
     .catch((err) => {
-      if (err.name === 'CastError') res.status(400).send({ message: 'Переданы некорректные данные при поиске пользователя' });
-      else if (err.statusCode === 404) res.status(404).send({ message: err.name });
-      else res.status(500).send({ message: 'Произошла ошибка' });
+      if (err.name === 'CastError') res.status(BAD_REQUEST).send({ message: BAD_REQUEST_MESSAGE });
+      else if (err.statusCode === RESOURCE_NOT_FOUND) {
+        res.status(RESOURCE_NOT_FOUND).send({ message: err.message });
+      } else res.status(GENERAL_ERROR).send({ message: GENERAL_ERROR_MESSAGE });
     });
 }
 
@@ -28,11 +39,11 @@ function postUser(req, res) {
 
   User.create({ name, about, avatar })
 
-    .then((user) => res.send(user))
+    .then((user) => res.status(OK_CREATED).send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(400).send({ message: 'Ошибка валидации при создании пользователя' });
-      } else res.status(500).send({ message: 'Произошла ошибка' });
+        res.status(BAD_REQUEST).send({ message: BAD_REQUEST_MESSAGE });
+      } else res.status(GENERAL_ERROR).send({ message: GENERAL_ERROR_MESSAGE });
     });
 }
 
@@ -43,15 +54,18 @@ function updateUser(req, res) {
     runValidators: true,
   }).orFail(() => {
     const error = new Error();
-    error.name = `Пользователь по ID ${req.user._id} не найден`;
-    error.statusCode = 404;
+    error.name = 'ResourceNotFound';
+    error.message = USER_NOT_FOUND_MESSAGE;
+    error.statusCode = RESOURCE_NOT_FOUND;
     throw error;
   })
     .then((user) => res.send(user))
     .catch((err) => {
-      if (err.name === 'CastError' || err.name === 'ValidationError') res.status(400).send({ message: 'Переданы некорректные данные при обновлении профиля' });
-      else if (err.statusCode === 404) res.status(404).send({ message: err.name });
-      else res.status(500).send({ message: 'Произошла ошибка' });
+      if (err.name === 'CastError' || err.name === 'ValidationError') res.status(BAD_REQUEST).send({ message: BAD_REQUEST_MESSAGE });
+      else if (err.statusCode === RESOURCE_NOT_FOUND) {
+        res.status(RESOURCE_NOT_FOUND)
+          .send({ message: err.message });
+      } else res.status(GENERAL_ERROR).send({ message: GENERAL_ERROR_MESSAGE });
     });
 }
 
@@ -64,15 +78,18 @@ function updateAvatar(req, res) {
   })
     .orFail(() => {
       const error = new Error();
-      error.name = `Пользователь по ID ${req.user._id} не найден`;
-      error.statusCode = 404;
+      error.name = 'ResourceNotFound';
+      error.message = USER_NOT_FOUND_MESSAGE;
+      error.statusCode = RESOURCE_NOT_FOUND;
       throw error;
     })
     .then((user) => res.send(user))
     .catch((err) => {
-      if (err.name === 'CastError' || err.name === 'ValidationError') res.status(400).send({ message: 'Переданы некорректные данные при обновлении аватара' });
-      else if (err.statusCode === 404) res.status(404).send({ message: err.name });
-      else res.status(500).send({ message: 'Произошла ошибка' });
+      if (err.name === 'CastError' || err.name === 'ValidationError') res.status(BAD_REQUEST).send({ message: BAD_REQUEST_MESSAGE });
+      else if (err.statusCode === RESOURCE_NOT_FOUND) {
+        res.status(RESOURCE_NOT_FOUND)
+          .send({ message: err.message });
+      } else res.status(GENERAL_ERROR).send({ message: GENERAL_ERROR_MESSAGE });
     });
 }
 
