@@ -9,9 +9,16 @@ function getUsers(req, res) {
 function getUserById(req, res) {
   const { userId } = req.params;
   User.findById(userId)
+    .orFail(() => {
+      const error = new Error();
+      error.name = `Пользователь по ID ${userId} не найден.`;
+      error.statusCode = 404;
+      throw error;
+    })
     .then((user) => res.send(user))
     .catch((err) => {
-      if (err.name === 'CastError') res.status(404).send({ message: `Пользователь по ID ${userId} не найден.` });
+      if (err.name === 'CastError') res.status(400).send({ message: 'Переданы некорректные данные при поиске пользователя' });
+      else if (err.statusCode === 404) res.status(404).send({ message: err.name });
       else res.status(500).send({ message: 'Произошла ошибка' });
     });
 }
@@ -42,7 +49,7 @@ function updateUser(req, res) {
   })
     .then((user) => res.send(user))
     .catch((err) => {
-      if (err.name === 'CastError') res.status(400).send({ message: 'Переданы некорректные данные при обновлении профиля' });
+      if (err.name === 'CastError' || err.name === 'ValidationError') res.status(400).send({ message: 'Переданы некорректные данные при обновлении профиля' });
       else if (err.statusCode === 404) res.status(404).send({ message: err.name });
       else res.status(500).send({ message: 'Произошла ошибка' });
     });
