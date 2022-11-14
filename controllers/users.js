@@ -62,8 +62,18 @@ function updateAvatar(req, res) {
     runValidators: true,
     upsert: false,
   })
+    .orFail(() => {
+      const error = new Error();
+      error.name = `Пользователь по ID ${req.user._id} не найден`;
+      error.statusCode = 404;
+      throw error;
+    })
     .then((user) => res.send(user))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch((err) => {
+      if (err.name === 'CastError' || err.name === 'ValidationError') res.status(400).send({ message: 'Переданы некорректные данные при обновлении аватара' });
+      else if (err.statusCode === 404) res.status(404).send({ message: err.name });
+      else res.status(500).send({ message: 'Произошла ошибка' });
+    });
 }
 
 module.exports = {
