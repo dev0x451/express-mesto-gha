@@ -16,7 +16,7 @@ app.use((req, res, next) => {
   next();
 });
 app.use(express.json());
-app.use('/user', userRoutes);
+app.use('/users', userRoutes);
 app.use('/cards', cardRoutes);
 app.use('*', (req, res) => {
   res.status(404).send({ message: 'Неверный URL' });
