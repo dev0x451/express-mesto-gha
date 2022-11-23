@@ -1,4 +1,7 @@
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 const User = require('../models/user');
+
 const {
   GENERAL_ERROR,
   GENERAL_ERROR_MESSAGE,
@@ -7,7 +10,24 @@ const {
   BAD_REQUEST,
   BAD_REQUEST_MESSAGE,
   USER_NOT_FOUND_MESSAGE,
+  SECRET_KEY,
 } = require('../util/constants');
+
+function login(req, res) {
+  const { email, password } = req.body;
+  User.findUserByCredentials(email, password).then((user) => {
+    const token = jwt.sign({ _id: user._id }, SECRET_KEY, { expiresIn: '7d' });
+
+    res.cookie('jwt', token, {
+      maxAge: 3600000,
+      httpOnly: true,
+      sameSite: true,
+    })
+      .status(200)
+      .send({ message: 'Успешная авторизация' });
+  })
+    .catch((err) => res.status(GENERAL_ERROR).send({ message: err.message }));
+}
 
 function getUsers(req, res) {
   User.find({})
@@ -16,7 +36,7 @@ function getUsers(req, res) {
 }
 
 function getUserById(req, res) {
-  const { userId } = req.params;
+  const userId = req.params.userId || req.user._id;
   User.findById(userId)
     .orFail(() => {
       const error = new Error();
@@ -34,17 +54,40 @@ function getUserById(req, res) {
     });
 }
 
-function postUser(req, res) {
-  const { name, about, avatar } = req.body;
+function createUser(req, res) {
+  const {
+    email, password, name, about, avatar,
+  } = req.body;
 
-  User.create({ name, about, avatar })
+  bcrypt.hash(password, 10)
+    .then(
 
-    .then((user) => res.status(OK_CREATED).send(user))
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(BAD_REQUEST).send({ message: BAD_REQUEST_MESSAGE });
-      } else res.status(GENERAL_ERROR).send({ message: GENERAL_ERROR_MESSAGE });
-    });
+      (hash) => {
+        User.create({
+          email,
+          password: hash, name, about, avatar
+        })
+          //разбираем объект user по полям чтобы не высылать поле password
+          .then((user) => res.status(OK_CREATED).send({
+            _id: user._id,
+            email: user.email,
+            name: user.name,
+            about: user.about,
+            avatar: user.avatar,
+
+          }))
+          .catch((err) => {
+            if (err.name === 'ValidationError') {
+              res.status(BAD_REQUEST).send({ message: BAD_REQUEST_MESSAGE });
+            } else if (err.code === 11000) {
+              res.status(409).send({ message: 'email уже сущ' });
+            }
+            else res.status(GENERAL_ERROR).send({ message: GENERAL_ERROR_MESSAGE });
+          });
+      }
+
+    )
+    .catch((err) => { res.status(GENERAL_ERROR).send({ message: GENERAL_ERROR_MESSAGE }); });
 }
 
 function updateUser(req, res) {
@@ -94,5 +137,5 @@ function updateAvatar(req, res) {
 }
 
 module.exports = {
-  postUser, getUsers, getUserById, updateUser, updateAvatar,
+  createUser, login, getUsers, getUserById, updateUser, updateAvatar,
 };

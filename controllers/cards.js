@@ -33,7 +33,9 @@ function createCard(req, res) {
 }
 
 function deleteCard(req, res) {
-  Card.findByIdAndRemove(req.params.cardId)
+  const { cardId } = req.params;
+
+  Card.findOne({ _id: cardId })
     .orFail(() => {
       const error = new Error();
       error.name = 'ResourceNotFound';
@@ -41,14 +43,27 @@ function deleteCard(req, res) {
       error.statusCode = RESOURCE_NOT_FOUND;
       throw error;
     })
-    .then((card) => res.send({ data: card }))
-    .catch((err) => {
-      if (err.name === 'CastError') res.status(BAD_REQUEST).send({ message: BAD_REQUEST_MESSAGE });
-      else if (err.statusCode === RESOURCE_NOT_FOUND) {
-        res.status(RESOURCE_NOT_FOUND)
-          .send({ message: err.message });
-      } else res.status(GENERAL_ERROR).send({ message: GENERAL_ERROR_MESSAGE });
-    });
+    .then((card) => {
+      if (req.user._id === card.owner._id.toString()) {
+        Card.findByIdAndRemove(cardId)
+          .then((card) => res.status(200).send({ data: card }))
+          .catch((err) => {
+            if (err.name === 'CastError') res.status(BAD_REQUEST).send({ message: BAD_REQUEST_MESSAGE });
+            else if (err.statusCode === RESOURCE_NOT_FOUND) {
+              res.status(RESOURCE_NOT_FOUND)
+                .send({ message: err.message });
+            } else res.status(GENERAL_ERROR).send({ message: GENERAL_ERROR_MESSAGE });
+          });
+      } else {
+        const error = new Error();
+        error.name = 'NotAllowed';
+        error.message = 'попытка удаления чужой карточки';
+        error.statusCode = 401;
+        throw error;
+      }
+    })
+    .catch((err) => res.status(err.statusCode).send({ message: err.message }));
+  // res.status(GENERAL_ERROR).send({ message: GENERAL_ERROR_MESSAGE }));
 }
 
 function setLike(req, res) {
