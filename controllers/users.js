@@ -65,9 +65,11 @@ function createUser(req, res) {
       (hash) => {
         User.create({
           email,
-          password: hash, name, about, avatar
+          password: hash,
+          name,
+          about,
+          avatar,
         })
-          //разбираем объект user по полям чтобы не высылать поле password
           .then((user) => res.status(OK_CREATED).send({
             _id: user._id,
             email: user.email,
@@ -81,13 +83,11 @@ function createUser(req, res) {
               res.status(BAD_REQUEST).send({ message: BAD_REQUEST_MESSAGE });
             } else if (err.code === 11000) {
               res.status(409).send({ message: 'email уже сущ' });
-            }
-            else res.status(GENERAL_ERROR).send({ message: GENERAL_ERROR_MESSAGE });
+            } else res.status(GENERAL_ERROR).send({ message: GENERAL_ERROR_MESSAGE });
           });
-      }
-
+      },
     )
-    .catch((err) => { res.status(GENERAL_ERROR).send({ message: GENERAL_ERROR_MESSAGE }); });
+    .catch(() => { res.status(GENERAL_ERROR).send({ message: GENERAL_ERROR_MESSAGE }); });
 }
 
 function updateUser(req, res) {

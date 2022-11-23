@@ -46,7 +46,7 @@ function deleteCard(req, res) {
     .then((card) => {
       if (req.user._id === card.owner._id.toString()) {
         Card.findByIdAndRemove(cardId)
-          .then((card) => res.status(200).send({ data: card }))
+          .then((card2) => res.status(200).send({ data: card2 }))
           .catch((err) => {
             if (err.name === 'CastError') res.status(BAD_REQUEST).send({ message: BAD_REQUEST_MESSAGE });
             else if (err.statusCode === RESOURCE_NOT_FOUND) {
