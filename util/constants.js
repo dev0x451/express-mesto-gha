@@ -1,22 +1,36 @@
 const GENERAL_ERROR = 500;
 const GENERAL_ERROR_MESSAGE = 'Произошла ошибка';
 const BAD_REQUEST = 400;
+const STATUS_ALREADY_EXISTS = 409;
+const STATUS_ALREADY_EXISTS_MESSAGE = 'Пользователь уже существует';
 const BAD_REQUEST_MESSAGE = 'Переданы некорректные данные';
 const RESOURCE_NOT_FOUND = 404;
 const RESOURCE_NOT_FOUND_MESSAGE = 'Неверный URL';
-const USER_NOT_FOUND_MESSAGE = 'Пользователь по указанному ID не найден';
+const USER_NOT_FOUND_MESSAGE = 'Пользователь с данным ID не найден';
+const USERS_NOT_FOUND_MESSAGE = 'Пользователи не найдены';
 const CARD_NOT_FOUND_MESSAGE = 'Карточка с указанным ID не найдена';
-const OK_CREATED = 201;
+const STATUS_OK_CREATED = 201;
+const STATUS_OK = 200;
+const SUCCESSFUL_AUTHORIZATION_MESSAGE = 'Успешная авторизация';
 const SECRET_KEY = 'xKfbhje737dhM';
+const JWT_TOKEN_EXPIRES = '7d';
+const COOKIE_MAX_AGE = 3600000;
 module.exports = {
   GENERAL_ERROR,
   GENERAL_ERROR_MESSAGE,
   RESOURCE_NOT_FOUND,
   RESOURCE_NOT_FOUND_MESSAGE,
   USER_NOT_FOUND_MESSAGE,
+  USERS_NOT_FOUND_MESSAGE,
   CARD_NOT_FOUND_MESSAGE,
   BAD_REQUEST,
+  STATUS_ALREADY_EXISTS,
+  STATUS_ALREADY_EXISTS_MESSAGE,
   BAD_REQUEST_MESSAGE,
-  OK_CREATED,
+  STATUS_OK_CREATED,
+  STATUS_OK,
+  SUCCESSFUL_AUTHORIZATION_MESSAGE,
   SECRET_KEY,
+  JWT_TOKEN_EXPIRES,
+  COOKIE_MAX_AGE,
 };

@@ -26,6 +26,16 @@ app.use('/cards', cardRoutes);
 app.use('*', (req, res) => {
   res.status(RESOURCE_NOT_FOUND).send({ message: RESOURCE_NOT_FOUND_MESSAGE });
 });
+app.use((err, req, res, next) => {
+  const { statusCode = 500, message } = err;
+  res
+    .status(statusCode)
+    .send({
+      message: statusCode === 500
+        ? 'На сервере произошла ошибка'
+        : message,
+    });
+});
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
