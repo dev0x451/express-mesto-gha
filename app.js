@@ -19,7 +19,14 @@ mongoose.connect(MONGODB_URI, {
 
 app.use(cookieParser());
 app.use(express.json()); // instead of body parser
-app.post('/signin', login);
+
+app.post('/signin', celebrate({
+  body: Joi.object().keys({
+    email: Joi.string().required().email(),
+    password: Joi.string().required(),
+  }),
+}), login);
+
 app.post('/signup', celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
