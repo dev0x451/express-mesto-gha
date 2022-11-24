@@ -3,7 +3,6 @@ const {
   BAD_REQUEST_MESSAGE,
   CARD_NOT_FOUND_MESSAGE,
   STATUS_OK_CREATED,
-  CARDS_NOT_FOUND_MESSAGE,
   CARD_DELETION_NOT_AUTHORIZED_MESSAGE,
   STATUS_OK,
 } = require('../util/constants');
@@ -12,9 +11,6 @@ const { NotFoundError, BadRequestError, ForbiddenError } = require('../errors/er
 function getCards(req, res, next) {
   Card.find({})
     .populate(['owner', 'likes'])
-    .orFail(() => {
-      throw new NotFoundError(CARDS_NOT_FOUND_MESSAGE);
-    })
     .then((cards) => res.send(cards))
     .catch(next);
 }
