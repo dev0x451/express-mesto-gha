@@ -7,7 +7,7 @@ const {
   CARD_DELETION_NOT_AUTHORIZED_MESSAGE,
   STATUS_OK,
 } = require('../util/constants');
-const { NotFoundError, BadRequestError, NotAuthorizedError } = require('../errors/errors');
+const { NotFoundError, BadRequestError, ForbiddenError } = require('../errors/errors');
 
 function getCards(req, res, next) {
   Card.find({})
@@ -50,7 +50,7 @@ function deleteCard(req, res, next) {
             if (err.name === 'CastError') next(new BadRequestError(BAD_REQUEST_MESSAGE));
             else next(err);
           });
-      } else next(new NotAuthorizedError(CARD_DELETION_NOT_AUTHORIZED_MESSAGE));
+      } else next(new ForbiddenError(CARD_DELETION_NOT_AUTHORIZED_MESSAGE));
     })
     .catch(next);
 }

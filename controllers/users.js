@@ -7,7 +7,7 @@ const {
   STATUS_OK_CREATED,
   STATUS_OK,
   SUCCESSFUL_AUTHORIZATION_MESSAGE,
-  STATUS_ALREADY_EXISTS_MESSAGE,
+  ALREADY_EXISTS_MESSAGE,
   BAD_REQUEST_MESSAGE,
   USER_NOT_FOUND_MESSAGE,
   USERS_NOT_FOUND_MESSAGE,
@@ -57,7 +57,7 @@ function createUser(req, res, next) {
   const {
     email, password, name, about, avatar,
   } = req.body;
-
+  if (!password) throw new BadRequestError(BAD_REQUEST_MESSAGE);
   bcrypt.hash(password, 10)
     .then(
 
@@ -81,7 +81,7 @@ function createUser(req, res, next) {
             if (err.name === 'ValidationError') {
               next(new BadRequestError(BAD_REQUEST_MESSAGE));
             } else if (err.code === 11000) {
-              next(new UserAlreadyExistsError(STATUS_ALREADY_EXISTS_MESSAGE));
+              next(new UserAlreadyExistsError(ALREADY_EXISTS_MESSAGE));
             } else next(err);
           });
       },
