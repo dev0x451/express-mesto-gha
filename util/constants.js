@@ -8,7 +8,9 @@ const RESOURCE_NOT_FOUND = 404;
 const RESOURCE_NOT_FOUND_MESSAGE = 'Неверный URL';
 const USER_NOT_FOUND_MESSAGE = 'Пользователь с данным ID не найден';
 const USERS_NOT_FOUND_MESSAGE = 'Пользователи не найдены';
+const CARDS_NOT_FOUND_MESSAGE = 'Карточки не найдены';
 const CARD_NOT_FOUND_MESSAGE = 'Карточка с указанным ID не найдена';
+const CARD_DELETION_NOT_AUTHORIZED_MESSAGE = 'Попытка удаления чужой карточки';
 const STATUS_OK_CREATED = 201;
 const STATUS_OK = 200;
 const SUCCESSFUL_AUTHORIZATION_MESSAGE = 'Успешная авторизация';
@@ -22,7 +24,9 @@ module.exports = {
   RESOURCE_NOT_FOUND_MESSAGE,
   USER_NOT_FOUND_MESSAGE,
   USERS_NOT_FOUND_MESSAGE,
+  CARDS_NOT_FOUND_MESSAGE,
   CARD_NOT_FOUND_MESSAGE,
+  CARD_DELETION_NOT_AUTHORIZED_MESSAGE,
   BAD_REQUEST,
   STATUS_ALREADY_EXISTS,
   STATUS_ALREADY_EXISTS_MESSAGE,

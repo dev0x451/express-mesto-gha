@@ -1,106 +1,83 @@
 const Card = require('../models/card');
 const {
-  GENERAL_ERROR,
-  GENERAL_ERROR_MESSAGE,
-  RESOURCE_NOT_FOUND,
-  BAD_REQUEST,
   BAD_REQUEST_MESSAGE,
   CARD_NOT_FOUND_MESSAGE,
-  OK_CREATED,
+  STATUS_OK_CREATED,
+  CARDS_NOT_FOUND_MESSAGE,
+  CARD_DELETION_NOT_AUTHORIZED_MESSAGE,
+  STATUS_OK,
 } = require('../util/constants');
+const { NotFoundError, BadRequestError, NotAuthorizedError } = require('../errors/errors');
 
-function getCards(req, res) {
+function getCards(req, res, next) {
   Card.find({})
     .populate(['owner', 'likes'])
+    .orFail(() => {
+      throw new NotFoundError(CARDS_NOT_FOUND_MESSAGE);
+    })
     .then((cards) => res.send(cards))
-    .catch(() => res.status(GENERAL_ERROR).send({ message: GENERAL_ERROR_MESSAGE }));
+    .catch(next);
 }
 
-function createCard(req, res) {
+function createCard(req, res, next) {
   const { name, link } = req.body;
 
   Card.create({ name, link, owner: req.user._id })
     .then((card) => {
       Card.findById(card._id)
         .populate(['owner', 'likes']).then((crd) => {
-          res.status(OK_CREATED).send({ data: crd });
+          res.status(STATUS_OK_CREATED).send({ data: crd });
         });
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') res.status(BAD_REQUEST).send({ message: BAD_REQUEST_MESSAGE });
-      else res.status(GENERAL_ERROR).send({ message: err.message });
+      if (err.name === 'ValidationError') next(new BadRequestError(BAD_REQUEST_MESSAGE));
+      else next(err);
     });
 }
 
-function deleteCard(req, res) {
+function deleteCard(req, res, next) {
   const { cardId } = req.params;
 
   Card.findOne({ _id: cardId })
     .orFail(() => {
-      const error = new Error();
-      error.name = 'ResourceNotFound';
-      error.message = CARD_NOT_FOUND_MESSAGE;
-      error.statusCode = RESOURCE_NOT_FOUND;
-      throw error;
+      throw new NotFoundError(CARD_NOT_FOUND_MESSAGE);
     })
     .then((card) => {
       if (req.user._id === card.owner._id.toString()) {
         Card.findByIdAndRemove(cardId)
-          .then((card2) => res.status(200).send({ data: card2 }))
+          .then((card2) => res.status(STATUS_OK).send({ data: card2 }))
           .catch((err) => {
-            if (err.name === 'CastError') res.status(BAD_REQUEST).send({ message: BAD_REQUEST_MESSAGE });
-            else if (err.statusCode === RESOURCE_NOT_FOUND) {
-              res.status(RESOURCE_NOT_FOUND)
-                .send({ message: err.message });
-            } else res.status(GENERAL_ERROR).send({ message: GENERAL_ERROR_MESSAGE });
+            if (err.name === 'CastError') next(new BadRequestError(BAD_REQUEST_MESSAGE));
+            else next(err);
           });
-      } else {
-        const error = new Error();
-        error.name = 'NotAllowed';
-        error.message = 'попытка удаления чужой карточки';
-        error.statusCode = 401;
-        throw error;
-      }
+      } else next(new NotAuthorizedError(CARD_DELETION_NOT_AUTHORIZED_MESSAGE));
     })
-    .catch((err) => res.status(err.statusCode).send({ message: err.message }));
-  // res.status(GENERAL_ERROR).send({ message: GENERAL_ERROR_MESSAGE }));
+    .catch(next);
 }
 
-function setLike(req, res) {
+function setLike(req, res, next) {
   Card.findByIdAndUpdate(req.params.cardId, { $addToSet: { likes: req.user._id } }, { new: true })
     .populate(['owner', 'likes'])
     .orFail(() => {
-      const error = new Error();
-      error.name = 'ResourceNotFound';
-      error.message = CARD_NOT_FOUND_MESSAGE;
-      error.statusCode = RESOURCE_NOT_FOUND;
-      throw error;
+      throw new NotFoundError(CARD_NOT_FOUND_MESSAGE);
     })
     .then((card) => res.send({ data: card }))
     .catch((err) => {
-      if (err.name === 'CastError') res.status(BAD_REQUEST).send({ message: BAD_REQUEST_MESSAGE });
-      else if (err.statusCode === RESOURCE_NOT_FOUND) {
-        res.status(RESOURCE_NOT_FOUND).send({ message: err.message });
-      } else res.status(GENERAL_ERROR).send({ message: GENERAL_ERROR_MESSAGE });
+      if (err.name === 'CastError') next(new BadRequestError(BAD_REQUEST_MESSAGE));
+      else next(err);
     });
 }
 
-function removeLike(req, res) {
+function removeLike(req, res, next) {
   Card.findByIdAndUpdate(req.params.cardId, { $pull: { likes: req.user._id } }, { new: true })
     .populate(['owner', 'likes'])
     .orFail(() => {
-      const error = new Error();
-      error.name = 'ResourceNotFound';
-      error.message = CARD_NOT_FOUND_MESSAGE;
-      error.statusCode = RESOURCE_NOT_FOUND;
-      throw error;
+      throw new NotFoundError(CARD_NOT_FOUND_MESSAGE);
     })
     .then((card) => res.send({ data: card }))
     .catch((err) => {
-      if (err.name === 'CastError') res.status(BAD_REQUEST).send({ message: BAD_REQUEST_MESSAGE });
-      else if (err.statusCode === RESOURCE_NOT_FOUND) {
-        res.status(RESOURCE_NOT_FOUND).send({ message: err.message });
-      } else res.status(GENERAL_ERROR).send({ message: GENERAL_ERROR_MESSAGE });
+      if (err.name === 'CastError') next(new BadRequestError(BAD_REQUEST_MESSAGE));
+      else next(err);
     });
 }
 

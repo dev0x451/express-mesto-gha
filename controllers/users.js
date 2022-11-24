@@ -4,13 +4,9 @@ const User = require('../models/user');
 const { NotFoundError, BadRequestError, UserAlreadyExistsError } = require('../errors/errors');
 
 const {
-  GENERAL_ERROR,
-  GENERAL_ERROR_MESSAGE,
-  RESOURCE_NOT_FOUND,
   STATUS_OK_CREATED,
   STATUS_OK,
   SUCCESSFUL_AUTHORIZATION_MESSAGE,
-  BAD_REQUEST,
   STATUS_ALREADY_EXISTS_MESSAGE,
   BAD_REQUEST_MESSAGE,
   USER_NOT_FOUND_MESSAGE,
@@ -23,12 +19,7 @@ const {
 function login(req, res, next) {
   const { email, password } = req.body;
   User.findUserByCredentials(email, password).then((user) => {
-    // if (!user) {
-    //   throw new NotFoundError('Нет пользователя с таким id');
-    // }
-
     const token = jwt.sign({ _id: user._id }, SECRET_KEY, { expiresIn: JWT_TOKEN_EXPIRES });
-
     res.cookie('jwt', token, {
       maxAge: COOKIE_MAX_AGE,
       httpOnly: true,
@@ -104,19 +95,12 @@ function updateUser(req, res, next) {
     new: true,
     runValidators: true,
   }).orFail(() => {
-    const error = new Error();
-    error.name = 'ResourceNotFound';
-    error.message = USER_NOT_FOUND_MESSAGE;
-    error.statusCode = RESOURCE_NOT_FOUND;
-    throw error;
+    throw new NotFoundError(USER_NOT_FOUND_MESSAGE);
   })
     .then((user) => res.send(user))
     .catch((err) => {
-      if (err.name === 'CastError' || err.name === 'ValidationError') res.status(BAD_REQUEST).send({ message: BAD_REQUEST_MESSAGE });
-      else if (err.statusCode === RESOURCE_NOT_FOUND) {
-        res.status(RESOURCE_NOT_FOUND)
-          .send({ message: err.message });
-      } else res.status(GENERAL_ERROR).send({ message: GENERAL_ERROR_MESSAGE });
+      if (err.name === 'CastError' || err.name === 'ValidationError') next(new BadRequestError(BAD_REQUEST_MESSAGE));
+      else next(err);
     });
 }
 
@@ -128,19 +112,12 @@ function updateAvatar(req, res, next) {
     upsert: false,
   })
     .orFail(() => {
-      const error = new Error();
-      error.name = 'ResourceNotFound';
-      error.message = USER_NOT_FOUND_MESSAGE;
-      error.statusCode = RESOURCE_NOT_FOUND;
-      throw error;
+      throw new NotFoundError(USER_NOT_FOUND_MESSAGE);
     })
     .then((user) => res.send(user))
     .catch((err) => {
-      if (err.name === 'CastError' || err.name === 'ValidationError') res.status(BAD_REQUEST).send({ message: BAD_REQUEST_MESSAGE });
-      else if (err.statusCode === RESOURCE_NOT_FOUND) {
-        res.status(RESOURCE_NOT_FOUND)
-          .send({ message: err.message });
-      } else res.status(GENERAL_ERROR).send({ message: GENERAL_ERROR_MESSAGE });
+      if (err.name === 'CastError' || err.name === 'ValidationError') next(new BadRequestError(BAD_REQUEST_MESSAGE));
+      else next(err);
     });
 }
 
