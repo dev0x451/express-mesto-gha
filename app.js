@@ -1,60 +1,43 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
-const { celebrate, Joi, errors } = require('celebrate');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+const { errors } = require('celebrate');
 const userRoutes = require('./routes/users');
 const cardRoutes = require('./routes/cards');
+const signinRoute = require('./routes/signin');
+const signupRoute = require('./routes/signup');
+const invalidRoutes = require('./routes/invalidURLs');
+const { handleAllErrors } = require('./errors/errors');
 const auth = require('./middlewares/auth');
-const {
-  createUser, login,
-} = require('./controllers/users');
-const { RESOURCE_NOT_FOUND, RESOURCE_NOT_FOUND_MESSAGE } = require('./util/constants');
 
 const { PORT = 3000, MONGODB_URI = 'mongodb://localhost:27017/mestodb' } = process.env;
 const app = express();
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+});
 
 mongoose.connect(MONGODB_URI, {
   autoIndex: true,
 });
 
+app.use(limiter);
+app.use(helmet());
 app.use(cookieParser());
 app.use(express.json()); // instead of body parser
-
-app.post('/signin', celebrate({
-  body: Joi.object().keys({
-    email: Joi.string().required().email(),
-    password: Joi.string().required(),
-  }),
-}), login);
-
-app.post('/signup', celebrate({
-  body: Joi.object().keys({
-    email: Joi.string().required().email(),
-    password: Joi.string().required(),
-    name: Joi.string().min(2).max(30),
-    about: Joi.string().min(2).max(30),
-    // eslint-disable-next-line no-useless-escape
-    avatar: Joi.string().pattern(/http(s)?:\/\/(www.)?[a-z0-9\.\-]+\/[a-z0-9\.\-_~:\/?#\[\]@!$&'()*+,;=]+/),
-  }),
-}), createUser);
+app.use('/signin', signinRoute);
+app.use('/signup', signupRoute);
 app.use(auth);
 app.use('/users', userRoutes);
 app.use('/cards', cardRoutes);
-app.use('*', (req, res) => {
-  res.status(RESOURCE_NOT_FOUND).send({ message: RESOURCE_NOT_FOUND_MESSAGE });
-});
+app.use('*', invalidRoutes);
 app.use(errors());
-// eslint-disable-next-line no-unused-vars
-app.use((err, req, res, next) => {
-  const { statusCode = 500, message } = err;
-  res
-    .status(statusCode)
-    .send({
-      message: statusCode === 500
-        ? 'На сервере произошла ошибка'
-        : message,
-    });
-});
+app.use(handleAllErrors);
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
