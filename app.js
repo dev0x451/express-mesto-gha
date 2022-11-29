@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const cors = require('cors');
 const { errors } = require('celebrate');
 const userRoutes = require('./routes/users');
 const cardRoutes = require('./routes/cards');
@@ -12,7 +13,7 @@ const invalidRoutes = require('./routes/invalidURLs');
 const { handleAllErrors } = require('./errors/errors');
 const auth = require('./middlewares/auth');
 
-const { PORT = 3000, MONGODB_URI = 'mongodb://localhost:27017/mestodb' } = process.env;
+const { PORT = 4000, MONGODB_URI = 'mongodb://localhost:27017/mestodb' } = process.env;
 const app = express();
 
 const limiter = rateLimit({
@@ -22,10 +23,24 @@ const limiter = rateLimit({
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
 });
 
+const options = {
+  origin: [
+    'http://localhost:3000',
+    'http://sigma696.students.nomoredomains.club',
+    'https://sigma696.students.nomoredomains.club',
+  ],
+  methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
+  preflightContinue: false,
+  optionsSuccessStatus: 204,
+  allowedHeaders: ['Content-Type', 'origin', 'Authorization'],
+  credentials: true,
+};
+
 mongoose.connect(MONGODB_URI, {
   autoIndex: true,
 });
 
+app.use('*', cors(options));
 app.use(limiter);
 app.use(helmet());
 app.use(cookieParser());

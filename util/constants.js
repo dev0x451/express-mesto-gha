@@ -18,7 +18,7 @@ const STATUS_OK = 200;
 const SUCCESSFUL_AUTHORIZATION_MESSAGE = 'Успешная авторизация';
 const SECRET_KEY = 'xKfbhje737dhM';
 const JWT_TOKEN_EXPIRES = '7d';
-const COOKIE_MAX_AGE = 3600000;
+const COOKIE_MAX_AGE = 3600000 * 24 * 7;
 module.exports = {
   GENERAL_ERROR,
   GENERAL_ERROR_MESSAGE,
