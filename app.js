@@ -24,17 +24,14 @@ const limiter = rateLimit({
 });
 
 const options = {
-  // origin: [
-  //   'http://localhost:3000',
-  //   'http://sigma696.students.nomoredomains.club',
-  //   'https://sigma696.students.nomoredomains.club',
-  // ],
-  origin: ['*'],
-
-  methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
-  preflightContinue: false,
-  optionsSuccessStatus: 204,
-  allowedHeaders: ['Content-Type', 'origin', 'Authorization', 'Accept', 'Access-Control-Allow-Origin'],
+  origin: [
+    'http://sigma696.students.nomoredomains.club',
+    'https://sigma696.students.nomoredomains.club',
+  ],
+  // methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
+  // preflightContinue: false,
+  // optionsSuccessStatus: 204,
+  //allowedHeaders: ['Content-Type', 'origin', 'Authorization', 'Accept', 'Access-Control-Allow-Origin'],
   credentials: true,
 };
 
@@ -42,7 +39,7 @@ mongoose.connect(MONGODB_URI, {
   autoIndex: true,
 });
 
-app.use('*', cors());
+app.use('*', cors(options));
 app.use(limiter);
 app.use(helmet());
 app.use(cookieParser());
