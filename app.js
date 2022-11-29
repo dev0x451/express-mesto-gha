@@ -42,7 +42,7 @@ mongoose.connect(MONGODB_URI, {
   autoIndex: true,
 });
 
-app.options('*', cors(options));
+app.use('*', cors());
 app.use(limiter);
 app.use(helmet());
 app.use(cookieParser());
