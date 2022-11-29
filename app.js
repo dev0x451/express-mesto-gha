@@ -24,11 +24,13 @@ const limiter = rateLimit({
 });
 
 const options = {
-  origin: [
-    'http://localhost:3000',
-    'http://sigma696.students.nomoredomains.club',
-    'https://sigma696.students.nomoredomains.club',
-  ],
+  // origin: [
+  //   'http://localhost:3000',
+  //   'http://sigma696.students.nomoredomains.club',
+  //   'https://sigma696.students.nomoredomains.club',
+  // ],
+  origin: ['*'],
+
   methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
   preflightContinue: false,
   optionsSuccessStatus: 204,
