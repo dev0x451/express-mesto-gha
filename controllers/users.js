@@ -24,6 +24,7 @@ function login(req, res, next) {
       maxAge: COOKIE_MAX_AGE,
       httpOnly: true,
       sameSite: false,
+      //      secure: false,
       secure: true,
     })
       .status(STATUS_OK)
