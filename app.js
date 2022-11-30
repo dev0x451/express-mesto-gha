@@ -41,7 +41,7 @@ mongoose.connect(MONGODB_URI, {
 
 app.use('*', cors(options));
 app.use(limiter);
-app.use(helmet());
+//app.use(helmet());
 app.use(cookieParser());
 app.use(express.json()); // instead of body parser
 app.use('/signin', signinRoute);
