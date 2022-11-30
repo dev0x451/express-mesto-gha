@@ -8,6 +8,7 @@ const { errors } = require('celebrate');
 const userRoutes = require('./routes/users');
 const cardRoutes = require('./routes/cards');
 const signinRoute = require('./routes/signin');
+const signoutRoute = require('./routes/signout');
 const signupRoute = require('./routes/signup');
 const invalidRoutes = require('./routes/invalidURLs');
 const { handleAllErrors } = require('./errors/errors');
@@ -23,21 +24,25 @@ const limiter = rateLimit({
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
 });
 
-const options = {
-  origin: [
-    'http://sigma696.students.nomoredomains.club',
-    'https://sigma696.students.nomoredomains.club',
-  ],
-  // methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
-  // preflightContinue: false,
-  // optionsSuccessStatus: 204,
-  //allowedHeaders: ['Content-Type', 'origin', 'Authorization', 'Accept', 'Access-Control-Allow-Origin'],
-  credentials: true,
-};
+// methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
+// preflightContinue: false,
+// optionsSuccessStatus: 204,
+// allowedHeaders: ['Content-Type', 'origin', 'Authorization', 'Accept',
+// 'Access-Control-Allow-Origin'],
+// 'http://sigma696.students.nomoredomains.club',
+// 'https://sigma696.students.nomoredomains.club',
+
 
 mongoose.connect(MONGODB_URI, {
   autoIndex: true,
 });
+
+const options = {
+  origin: [
+    'http://localhost:3000',
+  ],
+  credentials: true,
+};
 
 app.use('*', cors(options));
 app.use(limiter);
@@ -49,6 +54,7 @@ app.use('/signup', signupRoute);
 app.use(auth);
 app.use('/users', userRoutes);
 app.use('/cards', cardRoutes);
+app.use('/signout', signoutRoute);
 app.use('*', invalidRoutes);
 app.use(errors());
 app.use(handleAllErrors);

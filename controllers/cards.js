@@ -22,7 +22,7 @@ function createCard(req, res, next) {
     .then((card) => {
       Card.findById(card._id)
         .populate(['owner', 'likes']).then((crd) => {
-          res.status(STATUS_OK_CREATED).send({ data: crd });
+          res.status(STATUS_OK_CREATED).send(crd);
         });
     })
     .catch((err) => {
@@ -41,7 +41,7 @@ function deleteCard(req, res, next) {
     .then((card) => {
       if (req.user._id === card.owner._id.toString()) {
         Card.findByIdAndRemove(cardId)
-          .then((card2) => res.status(STATUS_OK).send({ data: card2 }))
+          .then((card2) => res.status(STATUS_OK).send(card2))
           .catch((err) => {
             if (err.name === 'CastError') next(new BadRequestError(BAD_REQUEST_MESSAGE));
             else next(err);
@@ -57,7 +57,7 @@ function setLike(req, res, next) {
     .orFail(() => {
       throw new NotFoundError(CARD_NOT_FOUND_MESSAGE);
     })
-    .then((card) => res.send({ data: card }))
+    .then((card) => res.send(card))
     .catch((err) => {
       if (err.name === 'CastError') next(new BadRequestError(BAD_REQUEST_MESSAGE));
       else next(err);
@@ -70,7 +70,7 @@ function removeLike(req, res, next) {
     .orFail(() => {
       throw new NotFoundError(CARD_NOT_FOUND_MESSAGE);
     })
-    .then((card) => res.send({ data: card }))
+    .then((card) => res.send(card))
     .catch((err) => {
       if (err.name === 'CastError') next(new BadRequestError(BAD_REQUEST_MESSAGE));
       else next(err);

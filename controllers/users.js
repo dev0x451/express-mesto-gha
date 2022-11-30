@@ -7,6 +7,7 @@ const {
   STATUS_OK_CREATED,
   STATUS_OK,
   SUCCESSFUL_AUTHORIZATION_MESSAGE,
+  SUCCESSFUL_LOGOUT_MESSAGE,
   ALREADY_EXISTS_MESSAGE,
   BAD_REQUEST_MESSAGE,
   USER_NOT_FOUND_MESSAGE,
@@ -24,13 +25,20 @@ function login(req, res, next) {
       maxAge: COOKIE_MAX_AGE,
       httpOnly: true,
       sameSite: false,
-      //      secure: false,
       secure: true,
     })
       .status(STATUS_OK)
       .send({ message: SUCCESSFUL_AUTHORIZATION_MESSAGE });
   })
     .catch(next);
+}
+
+function logout(req, res, next) {
+  try {
+    res.clearCookie('jwt')
+      .status(STATUS_OK)
+      .send({ message: SUCCESSFUL_LOGOUT_MESSAGE });
+  } catch (err) { next(err); }
 }
 
 function getUsers(req, res, next) {
@@ -124,5 +132,5 @@ function updateAvatar(req, res, next) {
 }
 
 module.exports = {
-  createUser, login, getUsers, getUserById, updateUser, updateAvatar,
+  createUser, login, logout, getUsers, getUserById, updateUser, updateAvatar,
 };
