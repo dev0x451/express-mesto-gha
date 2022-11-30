@@ -31,7 +31,7 @@ const limiter = rateLimit({
 // 'Access-Control-Allow-Origin'],
 // 'http://sigma696.students.nomoredomains.club',
 // 'https://sigma696.students.nomoredomains.club',
-
+//    'http://mesto.xyz:3000',
 
 mongoose.connect(MONGODB_URI, {
   autoIndex: true,
@@ -39,8 +39,8 @@ mongoose.connect(MONGODB_URI, {
 
 const options = {
   origin: [
-    'http://localhost:3000',
-    'http://mesto.xyz:3000',
+    'http://sigma696.students.nomoredomains.club',
+    'https://sigma696.students.nomoredomains.club',
   ],
   credentials: true,
 };
