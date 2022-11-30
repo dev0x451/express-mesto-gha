@@ -40,6 +40,7 @@ mongoose.connect(MONGODB_URI, {
 const options = {
   origin: [
     'http://localhost:3000',
+    'http://mesto.xyz:3000',
   ],
   credentials: true,
 };
