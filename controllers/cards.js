@@ -9,7 +9,7 @@ const {
 const { NotFoundError, BadRequestError, ForbiddenError } = require('../errors/errors');
 
 function getCards(req, res, next) {
-  Card.find({})
+  Card.find({}).sort({ createdAt: -1 })
     .populate(['owner', 'likes'])
     .then((cards) => res.send(cards))
     .catch(next);
