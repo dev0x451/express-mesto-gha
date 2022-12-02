@@ -1,3 +1,4 @@
+require('dotenv').config();
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const User = require('../models/user');
@@ -12,15 +13,16 @@ const {
   BAD_REQUEST_MESSAGE,
   USER_NOT_FOUND_MESSAGE,
   USERS_NOT_FOUND_MESSAGE,
-  SECRET_KEY,
   JWT_TOKEN_EXPIRES,
   COOKIE_MAX_AGE,
 } = require('../util/constants');
 
+const { NODE_ENV, JWT_SECRET } = process.env;
+
 function login(req, res, next) {
   const { email, password } = req.body;
   User.findUserByCredentials(email, password).then((user) => {
-    const token = jwt.sign({ _id: user._id }, SECRET_KEY, { expiresIn: JWT_TOKEN_EXPIRES });
+    const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret', { expiresIn: JWT_TOKEN_EXPIRES });
     res.cookie('jwt', token, {
       maxAge: COOKIE_MAX_AGE,
       httpOnly: true,

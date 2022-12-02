@@ -17,7 +17,6 @@ const STATUS_OK_CREATED = 201;
 const STATUS_OK = 200;
 const SUCCESSFUL_AUTHORIZATION_MESSAGE = 'Успешная авторизация';
 const SUCCESSFUL_LOGOUT_MESSAGE = 'Успешный выход из системы';
-const SECRET_KEY = 'xKfbhje737dhM';
 const JWT_TOKEN_EXPIRES = '7d';
 const COOKIE_MAX_AGE = 3600000 * 24 * 7;
 module.exports = {
@@ -40,7 +39,6 @@ module.exports = {
   STATUS_OK,
   SUCCESSFUL_AUTHORIZATION_MESSAGE,
   SUCCESSFUL_LOGOUT_MESSAGE,
-  SECRET_KEY,
   JWT_TOKEN_EXPIRES,
   COOKIE_MAX_AGE,
 };
