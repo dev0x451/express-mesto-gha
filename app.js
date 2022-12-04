@@ -44,13 +44,6 @@ app.use(requestLogger); // подключаем логгер запросов
 app.use(helmet());
 app.use(cookieParser());
 app.use(express.json()); // instead of body parser
-// ///////////////////////////////////
-app.get('/crash-test', () => {
-  setTimeout(() => {
-    throw new Error('Сервер сейчас упадёт');
-  }, 0);
-});
-// //////////////////////////////////
 app.use('/signin', signinRoute);
 app.use('/signup', signupRoute);
 app.use(auth);
