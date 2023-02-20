@@ -1,11 +1,15 @@
 require('dotenv').config();
 const express = require('express');
+const https = require('https');
 const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const cors = require('cors');
 const { errors } = require('celebrate');
+const fs = require('fs');
+const { log } = require('console');
+
 const userRoutes = require('./routes/users');
 const cardRoutes = require('./routes/cards');
 const signinRoute = require('./routes/signin');
@@ -16,9 +20,19 @@ const { handleAllErrors } = require('./errors/errors');
 const auth = require('./middlewares/auth');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 
-const { PORT = 4000, MONGODB_URI = 'mongodb://localhost:27017/mestodb' } = process.env;
+const {
+  PORT = 4000,
+  MONGODB_URI = 'mongodb://localhost:27017/mestodb',
+  SSL_CRT_FILE,
+  SSL_KEY_FILE,
+} = process.env;
+
+const key = fs.readFileSync(SSL_KEY_FILE);
+const cert = fs.readFileSync(SSL_CRT_FILE);
 
 const app = express();
+const server = https.createServer({ key, cert }, app);
+
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // Limit each IP to 100 requests per `window` (per 15 minutes)
@@ -32,8 +46,8 @@ mongoose.connect(MONGODB_URI, {
 
 const options = {
   origin: [
-    'http://sigma696.students.nomoredomains.club',
-    'https://sigma696.students.nomoredomains.club',
+    'https://mesto.schapov.dev',
+    'https://localhost:3000',
   ],
   credentials: true,
 };
@@ -44,17 +58,17 @@ app.use(requestLogger); // подключаем логгер запросов
 app.use(helmet());
 app.use(cookieParser());
 app.use(express.json()); // instead of body parser
-app.use('/signin', signinRoute);
-app.use('/signup', signupRoute);
+app.use('/api/signin', signinRoute);
+app.use('/api/signup', signupRoute);
 app.use(auth);
-app.use('/users', userRoutes);
-app.use('/cards', cardRoutes);
-app.use('/signout', signoutRoute);
+app.use('/api/users', userRoutes);
+app.use('/api/cards', cardRoutes);
+app.use('/api/signout', signoutRoute);
 app.use('*', invalidRoutes);
 app.use(errorLogger); // подключаем логгер ошибок
 app.use(errors());
 app.use(handleAllErrors);
 
-app.listen(PORT, () => {
-  console.log(`App listening on port ${PORT}`);
+server.listen(PORT, () => {
+  log(`App listening on HTTPS port ${PORT}`);
 });
