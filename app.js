@@ -34,10 +34,10 @@ const app = express();
 const server = https.createServer({ key, cert }, app);
 
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per `window` (per 15 minutes)
-  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
 });
 
 mongoose.connect(MONGODB_URI, {
@@ -54,10 +54,10 @@ const options = {
 
 app.use('*', cors(options));
 app.use(limiter);
-app.use(requestLogger); // подключаем логгер запросов
+app.use(requestLogger);
 app.use(helmet());
 app.use(cookieParser());
-app.use(express.json()); // instead of body parser
+app.use(express.json());
 app.use('/api/signin', signinRoute);
 app.use('/api/signup', signupRoute);
 app.use(auth);
@@ -65,7 +65,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/cards', cardRoutes);
 app.use('/api/signout', signoutRoute);
 app.use('*', invalidRoutes);
-app.use(errorLogger); // подключаем логгер ошибок
+app.use(errorLogger);
 app.use(errors());
 app.use(handleAllErrors);
 

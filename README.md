@@ -1,16 +1,42 @@
-[![Tests](../../actions/workflows/tests-13-sprint.yml/badge.svg)](../../actions/workflows/tests-13-sprint.yml) [![Tests](../../actions/workflows/tests-14-sprint.yml/badge.svg)](../../actions/workflows/tests-14-sprint.yml)
-# Проект Mesto фронтенд + бэкенд
-https://github.com/sigma696/express-mesto-gha
+# Проект Mesto: бэкенд
+Предствляет собой API со следующими возможностями:
+
+* Регистрация пользователя: SERVER_NAME/api/signup
+* Логин пользователя: SERVER_NAME/api/signin
+* Logout пользователя: SERVER_NAME/api/signout
+* Получить всех пользователей: SERVER_NAME/api/users (метод GET)
+* Получить данные текущего пользователя: SERVER_NAME/api/users/me (метод GET)
+* Получить данные пользователя по id: SERVER_NAME/api/users/userID (метод GET)
+* Обновить данные текущего пользователя: SERVER_NAME/api/users/me (метод PATCH)
+* Обновить аватара текущего пользователя: SERVER_NAME/api/users/me/avatar (метод PATCH)
+* Добавление карточки: SERVER_NAME/api/cards (метод POST)
+* Получение карточек: SERVER_NAME/api/cards (метод GET)
+* Удаление карточки: SERVER_NAME/api/cards/cardID (метод DELETE)
+* Поставить лайк карточке: SERVER_NAME/api/cards/cardID/likes (метод PUT)
+* Удалить лайк у карточки: SERVER_NAME/api/cards/cardID/likes (метод DELETE)
+
+
 
 ## Директории
 
 `/routes` — папка с файлами роутера  
 `/controllers` — папка с файлами контроллеров пользователя и карточки   
 `/models` — папка с файлами описания схем пользователя и карточки  
-  
-Остальные директории вспомогательные, создаются при необходимости разработчиком
+## Как запустить проект локально
 
-## Запуск проекта
+* Клонируйте проект и разверните его в локальную папку и перейдите в нее
+* Убедитесь, что Node.js и NPM установлены
+* Установите зависимости
+```shell
+npm install
+```
+* Запуск сервера в dev-режиме с hot-reload:
+```shell
+npm run dev
+```
+* Запуск сервера в режиме production:
+```shell
+npm run start
+```
+Спасибо за внимание!
 
-`npm run start` — запускает сервер   
-`npm run dev` — запускает сервер с hot-reload
