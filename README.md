@@ -41,3 +41,8 @@ npm run start
 ```
 Спасибо за внимание!
 
+## Live demo
+
+API URL: https://mesto.schapov.dev/api
+
+
